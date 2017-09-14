@@ -35,7 +35,8 @@ from glue.app.qt.feedback import submit_bug_report, submit_feedback
 from glue.app.qt.plugin_manager import QtPluginManager
 from glue.app.qt.versions import show_glue_info
 from glue.app.qt.terminal import glue_terminal, IPythonTerminalError
-from glue.config import qt_fixed_layout_tab, qt_client, startup_action
+from glue.config import (qt_fixed_layout_tab, qt_client, run_startup_action,
+                         run_first_startup_action)
 
 __all__ = ['GlueApplication']
 DOCS_URL = 'http://www.glueviz.org'
@@ -228,11 +229,11 @@ class GlueApplication(Application, QtWidgets.QMainWindow):
         self.new_tab()
         self._update_plot_dashboard(None)
 
+    def run_default_startup_action(self):
+        run_first_startup_action(self.session, self.data_collection)
+
     def run_startup_action(self, name):
-        if name in startup_action.members:
-            startup_action.members[name](self.session, self.data_collection)
-        else:
-            raise Exception("Unknown startup action: {0}".format(name))
+        run_startup_action(name, self.session, self.data_collection)
 
     def _setup_ui(self):
         self._ui = load_ui('application.ui', None,

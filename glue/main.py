@@ -190,6 +190,8 @@ def start_glue(gluefile=None, config=None, datafiles=None, maximized=True,
     if startup_actions is not None:
         for name in startup_actions:
             ga.run_startup_action(name)
+    else:
+        ga.run_default_startup_action()
 
     return ga.start(maximized=maximized)
 

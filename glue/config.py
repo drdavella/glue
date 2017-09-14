@@ -18,7 +18,8 @@ __all__ = ['Registry', 'SettingRegistry', 'ExporterRegistry',
            'preference_panes', 'PreferencePanesRegistry',
            'DataExporterRegistry', 'data_exporter', 'layer_action',
            'SubsetMaskExporterRegistry', 'SubsetMaskImporterRegistry',
-           'StartupActionRegistry', 'startup_action']
+           'StartupActionRegistry', 'startup_action', 'set_startup_action',
+           'run_startup_action', 'run_first_startup_action']
 
 
 CFG_DIR = os.path.join(os.path.expanduser('~'), '.glue')
@@ -540,6 +541,8 @@ class StartupActionRegistry(DictRegistry):
         return adder
 
 
+
+
 class LinkFunctionRegistry(Registry):
 
     """Stores functions to convert between quantities
@@ -729,6 +732,28 @@ def load_configuration(search_path=None):
 
     return result
 
+# NOTE: This is just a prototype and most of this code will probably be
+# refactored and/or moved somewhere else. Most of this logic is intended to
+# support specific layouts, so it's possible that references to 'startup' will
+# eventually be converted to 'layout' or something similar
+_first_startup_action = None
+
+def _check_startup_action(name):
+    if name not in startup_action.members:
+        raise Exception("Unknown startup action: {0}".format(name))
+
+def set_startup_action(name):
+    global _first_startup_action
+    _check_startup_action(name)
+    _first_startup_action = name
+
+def run_first_startup_action(session, data_collection):
+    if _first_startup_action is not None:
+        run_startup_action(_first_startup_action, session, data_collection)
+
+def run_startup_action(name, session, data_collection):
+    _check_startup_action(name)
+    startup_action.members[name](session, data_collection)
 
 def _default_search_order():
     """
