@@ -94,7 +94,7 @@ class ImageViewer(MatplotlibDataViewer):
             vertices = np.array((roi.vx, roi.vy)).transpose()
             self._active_polygon = Polygon(vertices)
             self.axes.add_artist(self._active_polygon)
-            self.figure.canvas.draw()
+            self.redraw()
 
         elif self._active_polygon is not None:
             self._active_polygon = None
