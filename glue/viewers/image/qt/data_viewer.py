@@ -7,6 +7,7 @@ from qtpy.QtWidgets import QMessageBox
 from glue.viewers.matplotlib.qt.toolbar import MatplotlibViewerToolbar
 
 from glue.core import command
+from glue.core.message import EditSubsetMessage
 from glue.viewers.matplotlib.qt.data_viewer import MatplotlibDataViewer
 from glue.viewers.scatter.qt.layer_style_editor import ScatterLayerStyleEditor
 from glue.viewers.scatter.layer_artist import ScatterLayerArtist
@@ -67,6 +68,14 @@ class ImageViewer(MatplotlibDataViewer):
         self.axes._composite_image = imshow(self.axes, self.axes._composite,
                                             origin='lower', interpolation='nearest')
         self._set_wcs()
+
+        self.session.hub.subscribe(
+            self, EditSubsetMessage, handler=self.subset_handler)
+
+    def subset_handler(self, message):
+        print("EditSubset", repr(self), message)
+        if message.subset:
+            print("Updated subset", message.subset)
 
     @defer_draw
     def update_x_ticklabel(self, *event):
