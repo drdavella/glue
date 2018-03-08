@@ -81,6 +81,9 @@ class ImageViewer(MatplotlibDataViewer):
         self._active_polygon = None
 
     def subset_handler(self, message):
+        if self._active_polygon is not None:
+            self._active_polygon.remove()
+
         if message.subset:
             subset_state = message.subset[0].subsets[0].subset_state
             if not isinstance(subset_state, RoiSubsetState):
@@ -94,7 +97,6 @@ class ImageViewer(MatplotlibDataViewer):
             self.figure.canvas.draw()
 
         elif self._active_polygon is not None:
-            self._active_polygon.remove()
             self._active_polygon = None
             self._active_subset_state = None
 
