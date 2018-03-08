@@ -1,5 +1,8 @@
 from __future__ import absolute_import, division, print_function
 
+import numpy as np
+from matplotlib.patches import Polygon
+
 from astropy.wcs import WCS
 
 from qtpy.QtWidgets import QMessageBox
@@ -7,6 +10,8 @@ from qtpy.QtWidgets import QMessageBox
 from glue.viewers.matplotlib.qt.toolbar import MatplotlibViewerToolbar
 
 from glue.core import command
+from glue.core.subset import RoiSubsetState
+from glue.core.qt.roi import QtPolygonalROI
 from glue.core.message import EditSubsetMessage
 from glue.viewers.matplotlib.qt.data_viewer import MatplotlibDataViewer
 from glue.viewers.scatter.qt.layer_style_editor import ScatterLayerStyleEditor
@@ -72,10 +77,26 @@ class ImageViewer(MatplotlibDataViewer):
         self.session.hub.subscribe(
             self, EditSubsetMessage, handler=self.subset_handler)
 
+        self._active_subset_state = None
+        self._active_polygon = None
+
     def subset_handler(self, message):
-        print("EditSubset", repr(self), message)
         if message.subset:
-            print("Updated subset", message.subset)
+            subset_state = message.subset[0].subsets[0].subset_state
+            if not isinstance(subset_state, RoiSubsetState):
+                return
+
+            self._active_subset_state = subset_state
+            roi = QtPolygonalROI(self.axes, roi=self._active_subset_state.roi).roi()
+            vertices = np.array((roi.vx, roi.vy)).transpose()
+            self._active_polygon = Polygon(vertices)
+            self.axes.add_artist(self._active_polygon)
+            self.figure.canvas.draw()
+
+        elif self._active_polygon is not None:
+            self._active_polygon.remove()
+            self._active_polygon = None
+            self._active_subset_state = None
 
     @defer_draw
     def update_x_ticklabel(self, *event):
