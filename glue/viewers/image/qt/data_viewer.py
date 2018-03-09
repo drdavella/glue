@@ -81,6 +81,7 @@ class ImageViewer(MatplotlibDataViewer):
         self._active_polygon = None
 
     def subset_handler(self, message):
+
         if self._active_polygon is not None:
             self._active_polygon.remove()
 
@@ -90,15 +91,17 @@ class ImageViewer(MatplotlibDataViewer):
                 return
 
             self._active_subset_state = subset_state
-            roi = QtPolygonalROI(self.axes, roi=self._active_subset_state.roi).roi()
+            roi = self._active_subset_state.roi
             vertices = np.array((roi.vx, roi.vy)).transpose()
             self._active_polygon = Polygon(vertices)
             self.axes.add_artist(self._active_polygon)
-            self.redraw()
 
         elif self._active_polygon is not None:
+
             self._active_polygon = None
             self._active_subset_state = None
+
+        self.redraw()
 
     @defer_draw
     def update_x_ticklabel(self, *event):
