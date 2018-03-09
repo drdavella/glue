@@ -187,14 +187,6 @@ class ImageViewer(MatplotlibDataViewer):
             y_dep.remove(iy)
         self._changing_slice_requires_wcs_update = bool(x_dep or y_dep)
 
-    def _apply_subset_state(self, subset_state, use_current):
-        """We override this method from the parent class so that we can
-        highlight the ROI corresponding to the currently active subset in the
-        image viewer."""
-
-        super(ImageViewer, self)._apply_subset_state(subset_state, use_current)
-        self._display_active_subset(subset_state)
-
     def _roi_to_subset_state(self, roi):
         """ This method must be implemented in order for apply_roi from the
         parent class to work.
