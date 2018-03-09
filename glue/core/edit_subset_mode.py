@@ -53,14 +53,21 @@ class EditSubsetMode(object):
         :param new_state: The new SubsetState
         :param use_current: Do not create a new subset even if using NewMode
         """
+        send_message = False
         if not self._edit_subset or (self.mode is NewMode and not use_current):
             if self.data_collection is None:
                 raise RuntimeError("Must set data_collection before "
                                    "calling update")
             self._edit_subset = self.data_collection.new_subset_group()
+            send_message = True
+
         subs = self._edit_subset
         for s in as_list(subs):
             self.mode(s, new_state)
+
+        if self.data_collection is not None and send_message:
+            self.data_collection.hub.broadcast(EditSubsetMessage(
+                self, [subs], update=True))
 
     @contract(d='inst($DataCollection, $Data)',
               new_state='isinstance(SubsetState)',

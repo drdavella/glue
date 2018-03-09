@@ -516,7 +516,8 @@ class LayerTreeWidget(QtWidgets.QMainWindow, HubListener):
         """
         Update current selection to match edit subsets
         """
-        self.ui.layerTree.set_selected_layers(message.subset)
+        if not message.update:
+            self.ui.layerTree.set_selected_layers(message.subset)
 
     @avoid_circular
     def _update_edit_subset(self):

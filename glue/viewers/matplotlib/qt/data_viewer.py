@@ -208,16 +208,19 @@ class MatplotlibDataViewer(DataViewerWithState):
 
     # TODO: move some of the ROI stuff to state class?
 
+    def _apply_subset_state(self, subset_state, use_current):
+        cmd = ApplySubsetState(data_collection=self._data,
+                               subset_state=subset_state,
+                               use_current=use_current)
+        self._session.command_stack.do(cmd)
+
     def apply_roi(self, roi, use_current=False):
         """ This method relies on _roi_to_subset_state to be implemented by
         subclasses.
         """
         if len(self.layers) > 0:
             subset_state = self._roi_to_subset_state(roi)
-            cmd = ApplySubsetState(data_collection=self._data,
-                                   subset_state=subset_state,
-                                   use_current=use_current)
-            self._session.command_stack.do(cmd)
+            self._apply_subset_state(subset_state, use_current)
         else:
             # Make sure we force a redraw to get rid of the ROI
             self.axes.figure.canvas.draw()
