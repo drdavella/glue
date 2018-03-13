@@ -84,7 +84,8 @@ class ImageViewer(MatplotlibDataViewer):
 
         roi = subset_state.roi
         vertices = np.array((roi.vx, roi.vy)).transpose()
-        self._active_polygon = Polygon(vertices)
+        self._active_polygon = Polygon(
+            vertices, edgecolor='black', linewidth=2, fill=False)
         self.axes.add_artist(self._active_polygon)
         self._active_subset_state = subset_state
 
